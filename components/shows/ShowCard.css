@@ -1,0 +1,29 @@
+.show-card img {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.bg-orange {
+  background-color: #fd7e14 !important;
+  color: #fff;
+}
+
+.text-orange {
+  color: #fd7e14 !important;
+}
+
+.btn-orange {
+  background-color: #fd7e14;
+  border: none;
+  color: white;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.btn-orange:hover {
+  background-color: #e96908;
+  color: white;
+}
+
