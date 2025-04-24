@@ -119,7 +119,7 @@ export default function BookingPage() {
     });
   };
 
-  const genRow = (row, rowIndex) => {
+  const genRow = (row, rowIndex, type='ordinary') => {
     const rowLabel = String.fromCharCode(65 + rowIndex);
     return (
       <>
@@ -132,14 +132,14 @@ export default function BookingPage() {
                   onClick={() =>
                     !seat.is_booked &&
                     !seat.is_vip &&
-                    toggleSeatSelection(seat, rowLabel, seatIndex)
+                    toggleSeatSelection(seat, rowLabel, seatIndex, type)
                   }
                   className={`h-8 w-8 rounded-md text-xs font-medium seat-hover ${
                     seat.is_booked || seat.is_vip
                       ? `cursor-not-allowed ${
                           seat.is_vip ? "bg-dark-gray-300" : "bg-gray-300"
                         } text-gray-500`
-                      : selectedSeats["ordinary"].find(
+                      : selectedSeats[type].find(
                           (s) => s.seat_id === seat.seat_id
                         )
                       ? "bg-primary text-primary-foreground shadow-md"
@@ -279,7 +279,7 @@ export default function BookingPage() {
                       {String.fromCharCode(75 + rowIndex)}
                     </div>
 
-                    {genRow(row, ORDINARY_SEATS+rowIndex)}
+                    {genRow(row, ORDINARY_SEATS+rowIndex, 'balcony')}
 
                     <div className="flex w-8 items-center justify-center font-semibold">
                       {String.fromCharCode(75 + rowIndex)}

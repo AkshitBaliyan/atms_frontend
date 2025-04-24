@@ -1,4 +1,5 @@
 import axiosClient from '@/utils/axiosClient'; // adjust path as needed
+import { ChartNoAxesColumnDecreasing } from 'lucide-react';
 
 // const BASE_URL = "http://atms.test/api";
 
@@ -21,9 +22,10 @@ export const getShowById = async (showId) => {
 };
 export const purchaseTickets = async (user, show, selectedSeats, amount) => {
     try {
+        const seats = [...selectedSeats.ordinary, ...selectedSeats.balcony]; // Combine ordinary and VIP seats
         const response = await axiosClient.post('/purchase/tickets', { // Use the /api/tickets endpoint you defined in Laravel
             show_id: show,
-            seats: selectedSeats.ordinary.map(seat => ({ // Map selectedSeatsInfo to the format expected by your Laravel backend
+            seats: seats.map(seat => ({ // Map selectedSeatsInfo to the format expected by your Laravel backend
                 seat_id: seat.seat_id,
                 row: seat.row,
                 seatIndex: seat.seatIndex,
