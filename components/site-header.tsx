@@ -9,10 +9,14 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useTheme } from "@/components/theme-provider"
 
+import { useAuth } from '@/app/contexts/authContext';
+import { Span } from "next/dist/trace"
+
 export function SiteHeader() {
   const pathname = usePathname()
   const { setTheme, theme } = useTheme()
   const [isScrolled, setIsScrolled] = useState(false)
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,16 +85,28 @@ export function SiteHeader() {
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
-          <Link href="/login">
-            <Button variant="outline" size="sm" className="hidden sm:flex">
-              Log in
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button size="sm" className="hidden sm:flex">
-              Sign up
-            </Button>
-          </Link>
+
+              
+          {user ? (
+            <Link href="/profile">
+              <Button variant="outline" size="sm" className="hidden sm:flex">
+                {user.name}
+              </Button>
+            </Link>
+          ) : (
+            <>
+            <Link href="/login">
+              <Button variant="outline" size="sm" className="hidden sm:flex">
+                Log in
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm" className="hidden sm:flex">
+                Sign up
+              </Button>
+            </Link>
+            </>
+          )}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
