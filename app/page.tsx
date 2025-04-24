@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 
 // import ShowList from '../components/shows/ShowList';
 import ShowCard from '../components/shows/ShowCard';
-import useShows from '../hooks/useShows'; // optional
+import useShows from './hooks/useShows'; // optional
 
 export default function Home() {
 // Sample events data - in a real app, this would come from a database

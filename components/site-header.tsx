@@ -86,7 +86,7 @@ export function SiteHeader() {
               Log in
             </Button>
           </Link>
-          <Link href="/signup">
+          <Link href="/register">
             <Button size="sm" className="hidden sm:flex">
               Sign up
             </Button>
