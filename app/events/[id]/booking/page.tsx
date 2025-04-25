@@ -23,7 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { useAuth } from '@/app/contexts/authContext';
+import { useAuth } from "@/app/contexts/authContext";
 import { getShowById, purchaseTickets } from "@/app/services/showsApi";
 
 const ORDINARY_SEATS = 10;
@@ -39,12 +39,54 @@ export default function BookingPage() {
   const [ordinarySeats, setOrdinarySeats] = useState([]);
   const [balconySeats, setBalconySeats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const {user} = useAuth();
+  const [discountApplied, setDiscountApplied] = useState(false);
+  const [originalAmount, setOriginalAmount] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
+
+  const [selectedTab, setSelectedTab] = useState("ordinary");
+  const [selectedSeats, setSelectedSeats] = useState({
+    ordinary: [],
+    balcony: [],
+  });
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const getPricingDetails = () => {
+      const ordinaryCount = selectedSeats.ordinary.length;
+      const balconyCount = selectedSeats.balcony.length;
+  
+      // const ordinaryPrice = show.price.ordinary;
+      // const balconyPrice = show.price.balcony;
+  
+      // const base = (ordinaryCount * ordinaryPrice) + (balconyCount * balconyPrice);
+
+      const base = calculateTotal();
+  
+      let discount = 0;
+      if (show && discountApplied && base >= show.discount_min_cart_value) {
+        // discount = (base * show.discount_amount) / 100;
+        discount = show.discount_amount;
+      }
+  
+      const total = base - discount;
+  
+      return { base, discount, total };
+    };
+  
+    const { base, discount, total } = getPricingDetails();
+    setOriginalAmount(base);
+    setDiscount(discount);
+    setFinalAmount(total);
+  }, [selectedSeats, show, discountApplied]);
+  
 
   useEffect(() => {
     const fetchSeats = async () => {
       try {
         const response = await getShowById(eventId);
+        console.log("API response show:", response);
 
         if (!response?.data?.show || !response?.data?.seats) {
           console.log("Unexpected API response:", response);
@@ -64,12 +106,6 @@ export default function BookingPage() {
     if (eventId) fetchSeats();
   }, [eventId]);
 
-  const [selectedTab, setSelectedTab] = useState("ordinary");
-  const [selectedSeats, setSelectedSeats] = useState({
-    ordinary: [],
-    balcony: [],
-  });
-
   const calculateTotal = () => {
     let sum = 0;
     selectedSeats.ordinary.map((seat) => {
@@ -80,8 +116,22 @@ export default function BookingPage() {
       sum += Number(seat.price);
     });
 
-    return sum;
+    // let discount = 0;
+    // if (discountApplied && show && sum >= show.discount_min_cart_value) {
+    //   discount = show.discount_amount;
+    // }
 
+    // return sum - discount;
+    return sum;
+  };
+
+  const getPricingDetails = () => {
+    const base =
+      selectedSeats.ordinary.reduce((acc, s) => acc + Number(s.price), 0) +
+      selectedSeats.balcony.reduce((acc, s) => acc + Number(s.price), 0);
+    const discount =
+      show && base >= show.discount_min_cart_value ? show.discount_amount : 0;
+    return { base, discount, total: base - discount };
   };
 
   if (loading) {
@@ -100,7 +150,9 @@ export default function BookingPage() {
 
   const toggleSeatSelection = (seat, row, seatIndex, type = "ordinary") => {
     setSelectedSeats((prevSeats) => {
-      const isSelected = prevSeats[type].some((s) => s.seat_id === seat.seat_id);
+      const isSelected = prevSeats[type].some(
+        (s) => s.seat_id === seat.seat_id
+      );
 
       if (isSelected) {
         // Remove the seat
@@ -110,7 +162,13 @@ export default function BookingPage() {
         };
       } else {
         // Add the seat
-        const seatObj = { seat_id: seat.seat_id, row, seatIndex, type, price: seat.price };
+        const seatObj = {
+          seat_id: seat.seat_id,
+          row,
+          seatIndex,
+          type,
+          price: seat.price,
+        };
         return {
           ...prevSeats,
           [type]: [...prevSeats[type], seatObj],
@@ -119,7 +177,7 @@ export default function BookingPage() {
     });
   };
 
-  const genRow = (row, rowIndex, type='ordinary') => {
+  const genRow = (row, rowIndex, type = "ordinary") => {
     const rowLabel = String.fromCharCode(65 + rowIndex);
     return (
       <>
@@ -169,9 +227,11 @@ export default function BookingPage() {
     );
   };
 
-
   const proceedToPayment = () => {
-    if (selectedSeats.ordinary.length === 0 && selectedSeats.balcony.length === 0) {
+    if (
+      selectedSeats.ordinary.length === 0 &&
+      selectedSeats.balcony.length === 0
+    ) {
       alert("Please select at least one seat to continue.");
       return;
     }
@@ -182,15 +242,16 @@ export default function BookingPage() {
 
     // router.push(`/events/${eventId}/payment?${params.toString()}`);
 
-    purchaseTickets(user, eventId, selectedSeats, calculateTotal())
-      .then((response) => {
+    purchaseTickets(user, eventId, selectedSeats, originalAmount, finalAmount).then(
+      (response) => {
         // if (response.status === 200) {
         //   alert("Tickets booked successfully!");
         //   router.push(`/events/${eventId}/confirmation`);
         // } else {
         //   alert("Failed to book tickets. Please try again.");
         // }
-      });
+      }
+    );
   };
 
   const chunkSeats = (seats, size) => {
@@ -257,7 +318,6 @@ export default function BookingPage() {
                     </div>
                   </div>
                 ))}
-
               </div>
             </TabsContent>
 
@@ -269,8 +329,7 @@ export default function BookingPage() {
               </div>
 
               <div className="space-y-2">
-
-              {chunkSeats(balconySeats, 20).map((row, rowIndex) => (
+                {chunkSeats(balconySeats, 20).map((row, rowIndex) => (
                   <div
                     key={rowIndex}
                     className="flex justify-center gap-1 mb-2"
@@ -279,7 +338,7 @@ export default function BookingPage() {
                       {String.fromCharCode(75 + rowIndex)}
                     </div>
 
-                    {genRow(row, ORDINARY_SEATS+rowIndex, 'balcony')}
+                    {genRow(row, ORDINARY_SEATS + rowIndex, "balcony")}
 
                     <div className="flex w-8 items-center justify-center font-semibold">
                       {String.fromCharCode(75 + rowIndex)}
@@ -342,9 +401,38 @@ export default function BookingPage() {
                 </span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="mt-4 text-sm text-muted-foreground">
+                <p>Subtotal: ₹{originalAmount}</p>
+                {discountApplied && (
+                  <p className="text-green-600">
+                    Discount Applied: -₹{show.discount_amount}
+                  </p>
+                )}
+                <p className="font-semibold">Total: ₹{finalAmount}</p>
+              </div>
+              {/* <div className="flex justify-between">
                 <span>Total Amount:</span>
                 <span className="font-bold text-lg">₹{calculateTotal()}</span>
+              </div> */}
+
+              <div className="p-4 max-w-md mx-auto">
+                <button
+                  onClick={setDiscountApplied}
+                  disabled={originalAmount <= show.discount_min_cart_value}
+                  className={`w-full py-2 px-4 rounded-md text-white font-medium transition-all duration-200 ${
+                    parseFloat(originalAmount) > show.discount_min_cart_value
+                      ? "bg-green-600 hover:bg-green-700"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  Apply Discount {originalAmount > parseFloat(show.discount_min_cart_value) && `(-₹${show.discount_amount})`}
+                </button>
+
+                {discountApplied && (
+                  <p className="mt-4 text-green-600 font-semibold">
+                    🎉 Discount Applied Successfully!
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -356,7 +444,10 @@ export default function BookingPage() {
           </div>
           <Button
             onClick={proceedToPayment}
-            disabled={selectedSeats.ordinary.length === 0 && selectedSeats.balcony.length === 0}
+            disabled={
+              selectedSeats.ordinary.length === 0 &&
+              selectedSeats.balcony.length === 0
+            }
             className="gap-2"
           >
             Proceed to Payment <ArrowRight className="h-4 w-4" />

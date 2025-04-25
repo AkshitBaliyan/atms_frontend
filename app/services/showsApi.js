@@ -20,7 +20,7 @@ export const getShowById = async (showId) => {
     throw new Error('Failed to fetch show details');
   }
 };
-export const purchaseTickets = async (user, show, selectedSeats, amount) => {
+export const purchaseTickets = async (user, show, selectedSeats, originalAmount, finalAmount) => {
     try {
         const seats = [...selectedSeats.ordinary, ...selectedSeats.balcony]; // Combine ordinary and VIP seats
         const response = await axiosClient.post('/purchase/tickets', { // Use the /api/tickets endpoint you defined in Laravel
@@ -33,10 +33,8 @@ export const purchaseTickets = async (user, show, selectedSeats, amount) => {
                 price: seat.price
             })),
             user_id: user.id,
-            amount
-            // original_amount: originalAmount,
-            // final_amount: finalAmount,
-            // show_discount_id: showDiscountId,
+            original_amount: originalAmount,
+            final_amount: finalAmount,
         });
 
         console.log('Purchase response:', response.data);

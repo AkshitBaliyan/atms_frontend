@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-// import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 // import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 // import { AlertCircle } from "lucide-react"
@@ -79,14 +79,14 @@ const Bookings = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {/* <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">
-                    Original Amount: ${purchase.original_amount.toFixed(2)}
+                    Original Amount: ₹{purchase.original_amount}
                   </Badge>
                   <Badge variant="default">
-                    Final Amount: ${purchase.final_amount.toFixed(2)}
+                    Final Amount: ₹{purchase.final_amount}
                   </Badge>
-                </div> */}
+                </div>
                 <h4 className="text-lg font-semibold">Tickets:</h4>
                 <div className="space-y-2">
                   {purchase.tickets.map((ticket) => (
