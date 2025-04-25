@@ -106,3 +106,26 @@ export const cancelTickets = async(purchaseId) => {
     }
   }
 }
+
+export const downloadTicketPDF = async (purchaseId) => {
+  try {
+    const response = await axiosClient.get(`/tickets/${purchaseId}/download`, {
+      responseType: 'blob', // Important:  Tell axios to expect a Blob
+    });
+
+    const blob = response.data; //  The PDF data is in response.data now because of responseType: 'blob'
+    return blob;
+
+  } catch (error) {
+    //  Improved error handling
+    if (error.response) {
+      console.error('Error downloading PDF:', error.response.data);
+      throw new Error(`Failed to download PDF: ${error.response.status} - ${error.response.data.message || 'Unknown server error'}`);
+    } else if (error.request) {
+      console.error('Error downloading PDF:', error.request);
+      throw new Error('Failed to download PDF: No response from server');
+    } else {
+      console.error('Error downloading PDF:', error.message);
+      throw new Error(`Failed to download PDF: ${error.message}`);
+    }
+  }};
