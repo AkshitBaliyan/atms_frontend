@@ -85,3 +85,24 @@ export const getPastPurchases = async (userId) => {
     }
   }
 };
+
+export const cancelTickets = async(purchaseId) => {
+  try {
+    const response = await axiosClient.post('/tickets/cancel', {
+      purchase_id: purchaseId,
+    });
+    return response.data;
+  } catch (error) {
+    // Handle errors appropriately
+    if (error.response) {
+      console.error("Error canceling tickets:", error.response.data);
+      throw new Error(error.response.data.message || 'Failed to cancel tickets.');
+    } else if (error.request) {
+      console.error("Error canceling tickets:", error.request);
+      throw new Error('No response from server. Please check your network.');
+    } else {
+      console.error("Error canceling tickets:", error.message);
+      throw new Error('An error occurred while setting up the request.');
+    }
+  }
+}
