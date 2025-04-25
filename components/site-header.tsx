@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 // import { useState, useEffect } from "react"
 // import Link from "next/link"
@@ -86,7 +86,6 @@
 //             <span className="sr-only">Toggle theme</span>
 //           </Button>
 
-              
 //           {user ? (
 //             <Link href="/profile">
 //               <Button variant="outline" size="sm" className="hidden sm:flex">
@@ -164,11 +163,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "@/components/theme-provider";
 import {
   DropdownMenu,
@@ -179,10 +174,19 @@ import {
 
 //import { useAuth } from '@/app/contexts/authContext'; // Removed next.js specific
 import { cn } from "@/lib/utils";
+import { logout } from "@/app/services/authApi"
 import { useAuth } from "@/app/contexts/authContext";
 
 // Mock next/link and next/navigation for environments outside of Next.js
-const Link = ({ href, children, ...props }: { href: string; children: React.ReactNode, [key: string]: any }) => (
+const Link = ({
+  href,
+  children,
+  ...props
+}: {
+  href: string;
+  children: React.ReactNode;
+  [key: string]: any;
+}) => (
   <a href={href} {...props}>
     {children}
   </a>
@@ -190,19 +194,13 @@ const Link = ({ href, children, ...props }: { href: string; children: React.Reac
 
 const usePathname = () => "/"; // Mocked for non-Next.js environments
 
-
 // Mock useAuth for environments outside of Next.js
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const {
-    setTheme,
-    theme
-  } = useTheme();
+  const { setTheme, theme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -217,7 +215,9 @@ export function SiteHeader() {
     <header
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-200",
-        isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent"
+        isScrolled
+          ? "bg-background/80 backdrop-blur-md shadow-sm"
+          : "bg-transparent"
       )}
     >
       <div className="container flex h-16 items-center justify-between">
@@ -278,20 +278,32 @@ export function SiteHeader() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center"
+                >
                   <User className="mr-2 h-4 w-4" />
                   {user.name}
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
+                {/* <DropdownMenuItem asChild>
                   <Link href="/profile">
                     <span className="flex items-center gap-2">
                       <User className="h-4 w-4" />
                       Profile
                     </span>
                   </Link>
+                </DropdownMenuItem> */}
+                <DropdownMenuItem asChild onClick={logout} >
+                  {/* <Link href="/logout"> */}
+                    <span className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Logout
+                    </span>
+                  {/* </Link> */}
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/bookings">
@@ -336,13 +348,22 @@ export function SiteHeader() {
                 >
                   Home
                 </Link>
-                <Link href="#events" className="text-lg font-medium transition-colors hover:text-primary">
+                <Link
+                  href="#events"
+                  className="text-lg font-medium transition-colors hover:text-primary"
+                >
                   Events
                 </Link>
-                <Link href="#about" className="text-lg font-medium transition-colors hover:text-primary">
+                <Link
+                  href="#about"
+                  className="text-lg font-medium transition-colors hover:text-primary"
+                >
                   About
                 </Link>
-                <Link href="#contact" className="text-lg font-medium transition-colors hover:text-primary">
+                <Link
+                  href="#contact"
+                  className="text-lg font-medium transition-colors hover:text-primary"
+                >
                   Contact
                 </Link>
                 <div className="flex flex-col gap-2 mt-4">
